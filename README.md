@@ -29,11 +29,18 @@ git clone https://github.com/Elechun/2025_Kwangwoon_DS_Project_1.git
 
 ---
 
-## How to Run  
+## NEED TO DOWNLOAD!!!!
+```bash
+sudo apt install make
+sudo apt install gcc
+```
 
+## How to Run  
+- 반드시 Makefile이 위치한 디렉토리 내에서 수행해야 함. cd(change directory)로 변경하기
 ```bash
 cd DS_Project1_25
-make run
+make
+./run
 ```
 
 ---
