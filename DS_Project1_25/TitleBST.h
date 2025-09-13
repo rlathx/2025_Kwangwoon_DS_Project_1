@@ -12,4 +12,8 @@ public:
 	TitleBST();
 	~TitleBST();
 
+	void insert();
+	void search();
+	void print();
+	void delete_node();
 };

@@ -17,5 +17,11 @@ public:
 	ArtistBSTNode() {}
 	~ArtistBSTNode(){}
 
+	void set() {
+
+	}
+	void search() {
+
+	}
 	
 };

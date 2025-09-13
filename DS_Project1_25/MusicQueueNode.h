@@ -19,5 +19,11 @@ public:
 	MusicQueueNode() {}
 	~MusicQueueNode() {}
 
+	void insert() {
 
+	}
+
+	bool exist() {
+
+	}
 };

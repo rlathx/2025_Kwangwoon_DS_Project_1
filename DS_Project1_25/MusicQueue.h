@@ -11,6 +11,7 @@ public:
 	~MusicQueue();
 
 	bool empty();
+	bool exist();
 	void push();
 	MusicQueueNode* pop();
 	MusicQueueNode* front();

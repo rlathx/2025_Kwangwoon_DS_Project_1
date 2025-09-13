@@ -13,4 +13,9 @@ public:
 	ArtistBST();
 	~ArtistBST();
 
+	void insert();
+	void search();
+	void print();
+	void delete_node();
+
 };

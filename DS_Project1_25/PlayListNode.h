@@ -13,6 +13,9 @@ private:
 public:
 	PlayListNode(){}
 	~PlayListNode(){}
+	
+	void set() {
 
+	}
 	
 };

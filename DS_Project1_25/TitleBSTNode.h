@@ -15,5 +15,10 @@ public:
 	TitleBSTNode() {}
 	~TitleBSTNode() {}
 
+	void set() {
+
+	}
+	void search() {
 	
+	}
 };
