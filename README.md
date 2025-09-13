@@ -24,7 +24,7 @@ Please read Update Notes regularly before proceeding with the task and check for
 
 ```bash
 sudo apt-get install git
-git clone https://github.com/<YourID>/2025_Kwangwoon_Univ_DS_Project_1.git
+git clone [https://github.com/<YourID>/2025_Kwangwoon_Univ_DS_Project_1.git](https://github.com/Elechun/2025_Kwangwoon_DS_Project_1.git)
 ```
 
 ---
