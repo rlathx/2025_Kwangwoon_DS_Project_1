@@ -1,4 +1,3 @@
-[README (1).md](https://github.com/user-attachments/files/22310683/README.1.md)
 # 2025_Kwangwoon_Univ_DS_Project_1
 
 Please read Update Notes regularly before proceeding with the task and check for any updates before proceeding.  
