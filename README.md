@@ -34,6 +34,7 @@ git clone https://github.com/Elechun/2025_Kwangwoon_DS_Project_1.git
 ```bash
 sudo apt install make
 sudo apt install gcc
+sudo apt install g++
 ```
 
 ## How to Run  
