@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# 2025_Kwangwoon_DS_Project_1
-=======
 # 2025_Kwangwoon_Univ_DS_Project_1
 
 Please read Update Notes regularly before proceeding with the task and check for any updates before proceeding.  
@@ -60,6 +57,3 @@ make
 - 추가적으로 **`log_조교.txt`** 와 **`command_조교.txt`** 파일을 함께 제공하였다. `log_조교.txt`에는 각 명령어 결과에 대한 설명이 포함되어 있으므로 구현 시 참고.
 - 반드시 **`command.txt`**와 **`Music_List.txt`** 파일은 소스코드 파일과 같이 있어야 한다.  
 - 본 프로젝트는 **데이터구조 수업에서 다루는 기본 자료구조의 동작 확인**을 목적으로 하는 과제이다. 따라서 극단적인 예외 상황까지 고려할 필요는 없다. (예: 가수와 노래 제목이 모두 같은 경우, 실제로 존재하는 노래인지 검증하는 과정 등은 구현 대상에서 제외된다.)  
-
----
->>>>>>> master
