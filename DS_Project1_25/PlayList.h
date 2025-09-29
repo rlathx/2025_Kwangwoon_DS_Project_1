@@ -1,22 +1,25 @@
 #pragma once
+#include <string>
+
 #include "PlayListNode.h"
 
 class PlayList {
-private:
-	PlayListNode* head;
-	PlayListNode* cursor;
-	int count;
-	int time;
-	string data;
+   private:
+    PlayListNode* head;
+    PlayListNode* cursor;
+    int count;
+    int time;
+    std::string data;
 
-public:
-	PlayList() {}
-	~PlayList(){}
-	void insert_node();
-	void delete_node();
-	bool empty();
-	bool full();
-	bool exist();
-	string print();
-	int run_time();
+   public:
+    PlayList();
+    ~PlayList();
+
+    void insert_node(std::string artist, std::string title, std::string runTime);
+    void delete_node(std::string artist, std::string title);
+    bool empty();
+    bool full();
+    bool exist(std::string artist, std::string title);
+    void print();
+    int run_time(std::string runTime);
 };
