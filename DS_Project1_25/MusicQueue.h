@@ -15,7 +15,8 @@ class MusicQueue {
 
     bool empty();
     bool exist(std::string artist, std::string title);
-    void push(MusicQueueNode* newNode);
+    bool MusicQueue::push(const std::string& artist, const std::string& title,
+                          const std::string& runTime);
     MusicQueueNode* pop();
     MusicQueueNode* front();
 };

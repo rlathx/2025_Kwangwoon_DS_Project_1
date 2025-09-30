@@ -28,21 +28,29 @@ bool MusicQueue::exist(string artist, string title) {
     return false;
 }
 
-void MusicQueue::push(MusicQueueNode* newNode) {
-    if (this->size == 100) {
-        cout << "들어갈 자리 없음" return;
+bool MusicQueue::push(const std::string& artist, const std::string& title,
+                      const std::string& runTime) {
+    if (this->size >= 100) {
+        return false;
     }
-    this->size++;
+
+    MusicQueueNode* newNode = new MusicQueueNode;
+    newNode->insert(artist, title, runTime);
 
     if (this->head == nullptr) {
-        this->head = temp;
-        this->rear = temp;
+        this->head = newNode;
+        this->rear = newNode;
     } else {
         this->rear->setNext(newNode);
         newNode->setPrev(this->rear);
         this->rear = newNode;
     }
-    cout << temp->getArtist() << '/' << temp->getTitle() << '/' << temp->getRunTime() << '\n';
+    this->size++;
+
+    cout << newNode->getArtist() << '/' << newNode->getTitle() << '/' << newNode->getRunTime()
+         << '\n';
+
+    return true;
 }
 
 MusicQueueNode* MusicQueue::pop() {
