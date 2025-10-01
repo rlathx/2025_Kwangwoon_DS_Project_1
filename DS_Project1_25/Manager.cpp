@@ -59,71 +59,193 @@ bool Manager::run(const string& command) {
     // 4) 큐에 추가 (아래 2번 설명처럼 '큐 내부에서' 노드 생성/소유)
     const bool pushed = q.push(artist, title, runTime);
     if (!pushed) {
-        // 예: 중복, 용량 초과 등은 push가 false로 알려주도록
+        // error는 push가 false로 알려주도록
         cout << "추가 실패";
         return false;
     }
+
+    cout << artist << '/' << title << '/' << runTime << '\n';
 
     return true;
 }
 
 void Manager::LOAD() {
-    if (loadCheck == true) {
+    if (this->loadCheck == true) {
         cout << "이제 해당 명령어 사용 불가";
         return;
     }
-    if (!fcmd.is_open()) {
+    if (!this->fcmd.is_open()) {
         cout << "파일 없음";
         return;
     }
 
     string line;
-    while (getline(fcmd, line)) {
+    while (getline(this->fcmd, line)) {
         if (run(line) == false) {
             cout << "error\n";
             return;
         }
     }
 
-    fcmd.close();
-
     loadCheck = true;
 }
 
 void Manager::ADD(string command) {
-    // Music_List.txt 데이터들과 비교해 같은 곡이 들어올 경우 에러 코드를 출력
-    // a|a|a 하나의 string 전체를 Music_List에 있는 데이터 한줄한줄과 비교 -> 중복 없으면 add
-    // 입력 규격 안 맞음 -> queue - push 에서 error 출력
-    // queue - push 성공 시 해당 데이터 출력됨 -> 여기서 출력 포맷 만들어줘야함
-
-    // if (리스트랑 비교했는데 중복됨) {에러 출력; return;}
-    MusicQueueNode* temp = split(command);
-    if (temp) {
-        // ==add==
-        // queue->push(temp)
-        // =======
-        // return;
+    // txt랑 중복 확인
+    string line;
+    while (getline(this->fcmd, line)) {
+        if (line == command) {
+            cout << "txt랑 중복\n";
+            return;
+        }
     }
-    // 입력 규격 안 맞아서 에러 출력
-    cout << 200;
+
+    run(command);
 }
 
 void Manager::QPOP() {
+    MusicQueueNode* node = this->q.pop();
+
     // if(queue->pop() == nullptr) {에러코드 출력; return;}
-    // bst->insert(temp)
-    // 이미 bst에 있는 곡 : BST - insert 에서 에러 코드 출력
+    if (node == nullptr) {
+        cout << "empty\n";
+        return;
+    }
+
+    // 이미 artist bst에 있는 곡 : BST - insert 에서 에러 코드 출력
+    if (this->ab.insert(node->getArtist(), node->getTitle(), node->getRunTime()) == false) {
+        cout << "error\n";
+        return;
+    }
+
+    // 이미 title bst에 있는 곡 : BST - insert 에서 에러 코드 출력
+    if (this->tb.insert(node->getArtist(), node->getTitle(), node->getRunTime()) == false) {
+        cout << "error\n";
+        return;
+    }
+
+    cout << "success\n";
+    return;
 }
 
-void Manager::SEARCH() {
+void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
+    if (target == "ARTIST") {
+        if (this->ab.search() == nullptr) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < curNode->getCount(); i++) {
+            cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
+                 << curNode->getRunTime()[i] << '\n';
+        }
+    }
+    if (target == "TITLE") {
+        if (this->tb.search() == nullptr) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < curNode->getCount(); i++) {
+            cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
+                 << curNode->getRunTime()[i] << '\n';
+        }
+    }
+    if (target == "LIST") {
+        if (this->pl.search() == nullptr) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < curNode->getCount(); i++) {
+            if (curNode->getTitle()[i] == targetTitle) {
+                cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
+                     << curNode->getRunTime()[i] << '\n';
+
+                return;
+            }
+        }
+
+        cout << "error\n";
+        return;
+    }
 }
 
-void Manager::MAKEPL() {
+void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
+    if (target == "ARTIST") {
+        ArtistBSTNode* artistTemp = this->ab.search();
+
+        if (artistTemp == false) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < artistTemp->getCount(); i++) {
+            if (this->pl.insert_node(artistTemp->getArtist(), artistTemp->getTitle()[i],
+                                     artistTemp->getRunTime()) == false) {
+                cout << "error\n";
+                return;
+            }
+        }
+    }
+    if (target == "TITLE") {
+        ArtistBSTNode* titleTemp = this->tb.search();
+
+        if (titleTemp == false) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < titleTemp->getCount(); i++) {
+            if (this->pl.insert_node(titleTemp->getArtist()[i], titleTemp->getTitle(),
+                                     titleTemp->getRunTime()) == false) {
+                cout << "error\n";
+                return;
+            }
+        }
+    }
 }
 
-void Manager::PRINT() {
+void Manager::PRINT(string target) {
+    if (target == "ARTIST") {
+        if (this->ab.print() == false) {
+            cout << "error\n";
+            return;
+        }
+    }
+    if (target == "TITLE") {
+        if (this->tb.print() == false) {
+            cout << "error\n";
+            return;
+        }
+    }
+    if (target == "LIST") {
+        if (this->pl.print() == false) {
+            cout << "error\n";
+            return;
+        }
+    }
 }
 
-void Manager::DELETE() {
+void Manager::DELETE(string target, string targetArtist, string targetTitle) {
+    if (target == "ARTIST") {
+        if (this->ab.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
+            return;
+        }
+    }
+    if (target == "TITLE") {
+        if (this->tb.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
+            return;
+        }
+    }
+    if (target == "LIST") {
+        if (this->pl.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
+            return;
+        }
+    }
 }
 
 void Manager::EXIT() {

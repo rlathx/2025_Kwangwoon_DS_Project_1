@@ -20,6 +20,6 @@ class PlayList {
     bool empty();
     bool full();
     bool exist(std::string artist, std::string title);
-    void print();
+    bool print();
     int run_time(std::string runTime);
 };

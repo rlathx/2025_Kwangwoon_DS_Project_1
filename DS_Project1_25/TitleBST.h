@@ -14,9 +14,9 @@ class TitleBST {
     TitleBST();
     ~TitleBST();
 
-    void insert(const std::string artist, const std::string title, const std::string run_time);
-    void search(std::string targetTitle);
+    bool insert(const std::string artist, const std::string title, const std::string run_time);
+    TitleBSTNode* search(std::string targetTitle);
     void inOrder(TitleBSTNode* curNode);
-    void print();
+    bool print();
     void delete_node(std::string targetTitle);
 };

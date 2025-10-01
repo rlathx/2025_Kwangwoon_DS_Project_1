@@ -14,9 +14,9 @@ class ArtistBST {
     ArtistBST();
     ~ArtistBST();
 
-    void insert(const std::string artist, const std::string title, const std::string run_time);
-    void search(std::string targetArtist);
+    bool insert(const std::string artist, const std::string title, const std::string run_time);
+    ArtistBSTNode*& ArtistBST::search(std::string targetArtist);
     void inOrder(ArtistBSTNode* curNode);
-    void print();
-    void delete_node(std::string artist, std::string title);
+    bool print();
+    bool delete_node(string targetArtist, string targetTitle);
 };

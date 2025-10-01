@@ -19,15 +19,15 @@ PlayList::PlayList() {
 PlayList::~PlayList() {
 }
 
-void PlayList::insert_node(string artist, string title, string runTime) {
+bool PlayList::insert_node(string artist, string title, string runTime) {
     if (full()) {
         cout << "full";
-        return;
+        return false;
     }
 
     if (exist(artist, title)) {
         cout << "중복";
-        return;
+        return false;
     }
 
     PlayListNode* node = new PlayListNode;
@@ -41,30 +41,32 @@ void PlayList::insert_node(string artist, string title, string runTime) {
         this->cursor = node;
         this->cursor->setNext(this->head);
 
-        return;
+        return true;
     }
 
     this->cursor->setNext(node);
     node->setPrev(this->cursor);
     node->setNext(this->head);
     this->cursor = node;
+
+    return true;
 }
 
-void PlayList::delete_node(string artist, string title) {
+bool PlayList::delete_node(sstring targetArtist, string targetTitle) {
     if (this->head == nullptr) {
         cout << "지울 게 없음";
-        return;
+        return false;
     }
 
-    if (exist(artist, title) == false) {
+    if (exist(targetArtist, targetTitle) == false) {
         cout << "지울 게 없음";
-        return;
+        return false;
     }
 
     PlayListNode* temp = this->head;
 
     for (int i = 0; i < this->count; i++) {
-        if ((temp->getArtist() == artist) && (temp->getTitle() == title)) {
+        if ((temp->getArtist() == targetArtist) && (temp->getTitle() == targetTitle)) {
             break;
         }
         temp = temp->getNext();
@@ -78,7 +80,7 @@ void PlayList::delete_node(string artist, string title) {
         this->head = nullptr;
         this->cursor = nullptr;
 
-        return;
+        return true;
     }
 
     if (temp == this->head) {
@@ -87,7 +89,7 @@ void PlayList::delete_node(string artist, string title) {
         this->cursor->setNext(this->head);
 
         delete temp;
-        return;
+        return true;
     }
 
     if (temp == this->cursor) {
@@ -95,14 +97,14 @@ void PlayList::delete_node(string artist, string title) {
         this->cursor->setNext(this->head);
 
         delete temp;
-        return;
+        return true;
     }
 
     temp->getPrev()->setNext(temp->getNext());
     temp->getNext()->setPrev(temp->getPrev());
 
     delete temp;
-    return;
+    return true;
 }
 
 bool PlayList::empty() {
@@ -128,7 +130,10 @@ bool PlayList::exist(string artist, string title) {
     return false;
 }
 
-void PlayList::print() {
+bool PlayList::print() {
+    if (this->head == nullptr) {
+        return false;
+    }
     PlayListNode* temp = this->head;
 
     for (int i = 0; i < this->count; i++) {
@@ -138,6 +143,8 @@ void PlayList::print() {
 
     cout << "Count : " << this->count << " / 10" << '\n'
          << "Time: " << this->time / 60 << "min " << this->time % 60 << "sec" << '\n';
+
+    return true;
 }
 
 int PlayList::run_time(string runTime) {

@@ -47,9 +47,6 @@ bool MusicQueue::push(const std::string& artist, const std::string& title,
     }
     this->size++;
 
-    cout << newNode->getArtist() << '/' << newNode->getTitle() << '/' << newNode->getRunTime()
-         << '\n';
-
     return true;
 }
 
