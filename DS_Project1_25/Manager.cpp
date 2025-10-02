@@ -8,6 +8,7 @@
 using namespace std;
 
 Manager::Manager() {
+    this->commandFile.open("command.txt");
     this->fcmd.open("Music_List.txt");
     this->loadCheck = false;
 }
@@ -15,15 +16,186 @@ Manager::Manager() {
 Manager::~Manager() {
 }
 
-bool Manager::run(const string& command) {
+void Manager::run() {
+    if (!this->commandFile.is_open()) {
+        cout << "파일 없음";
+        return;
+    }
+
+    string line;
+    while (getline(this->commandFile, line)) {
+        if (line == "LOAD") {
+            LOAD();
+        } else if (line == "QPOP") {
+            QPOP();
+        } else if (line == "EXIT") {
+            EXIT();
+        }
+
+        const size_t p1 = line.find(' ');
+        if (p1 == string::npos) {
+            cout << "입력 규격 안 맞음";
+            continue;
+        }
+        const string command = line.substr(0, p1);
+
+        if (command == "ADD") {
+            if (split(line.substr(p1 + 1))) {
+                cout << "error\n";
+                continue;
+            }
+        } else if (command == "SEARCH") {
+            const size_t p2 = line.find(' ', p1 + 1);
+            if (p2 == string::npos) {
+                cout << "입력 규격 안 맞음";
+                continue;
+            }
+            const string target = line.substr(p1 + 1, p2 - (p1 + 1));
+
+            const string targetArtist;
+            const string targetTitle;
+
+            const size_t p3 = command.find('|', p2 + 1);
+            if ((p3 == string::npos) && target == "ARTIST") {
+                targetArtist = line.substr(p2 + 1);
+                targetTitle = "";
+            } else if ((p3 == string::npos) && target == "TITLE") {
+                targetArtist = "";
+                targetTitle = line.substr(p2 + 1);
+            } else if ((p3 == string::npos) && target == "SONG") {
+                targetArtist = line.substr(p2 + 1, p3 - (p2 + 1));
+                targetTitle = line.substr(p3 + 1);
+            }
+
+            SEARCH(target, targetArtist, targetTitle);
+
+        } else if (command == "MAKEPL") {
+            const size_t p2 = line.find(' ', p1 + 1);
+            if (p2 == string::npos) {
+                cout << "입력 규격 안 맞음";
+                continue;
+            }
+            const string target = line.substr(p1 + 1, p2 - (p1 + 1));
+
+            const string targetArtist;
+            const string targetTitle;
+
+            const size_t p3 = command.find('|', p2 + 1);
+            if ((p3 == string::npos) && target == "ARTIST") {
+                targetArtist = line.substr(p2 + 1);
+                ArtistBSTNode* artistNode = this->ab.search(targetArtist);
+                if (artistNode == nullptr) {
+                    cout << "error\n";
+                    continue;
+                }
+                if (artistNode->getCount() > (10 - this->pl.getCount())) {
+                    cout << "error\n";
+                    continue;
+                }
+
+                for (int i = 0; i < artistNode->getCount(); i++) {
+                    if (this->pl.insert_node(targetArtist, artistNode->getTitle()[i],
+                                             artistNode->getRunTime()[i]) == false) {
+                        cout << "error\n";
+                        continue;
+                    }
+                }
+            } else if ((p3 == string::npos) && target == "TITLE") {
+                targetTitle = line.substr(p2 + 1);
+                TitleBSTNode* titleNode = this->tb.search(targetTitle);
+                if (titleNode == nullptr) {
+                    cout << "error\n";
+                    continue;
+                }
+                if (titleNode->getCount() > (10 - this->pl.getCount())) {
+                    cout << "error\n";
+                    continue;
+                }
+
+                for (int i = 0; i < titleNode->getCount(); i++) {
+                    if (this->pl.insert_node(titleNode->getArtist()[i], targetTitle,
+                                             titleNode->getRunTime()[i]) == false) {
+                        cout << "error\n";
+                        continue;
+                    }
+                }
+            } else if ((p3 != string::npos) && (target == "SONG")) {
+                string targetArtist = line.substr(p2 + 1, p3 - (p2 + 1));
+                string targetTitle = line.substr(p3 + 1);
+
+                if (this->pl.full() == true) {
+                    cout << "error\n";
+                    continue;
+                }
+
+                ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+
+                if (targetNode == nullptr) {
+                    cout << "error\n";
+                    continue;
+                }
+
+                for (int i = 0; i < targetNode->getCount(); i++) {
+                    if (targetNode->getTitle()[i] == targetTitle) {
+                        if (this->pl.insert_node(targetArtist, targetTitle,
+                                                 targetNode->getRunTime()[i])) {
+                            cout << "error\n";
+                            continue;
+                        }
+                        continue;
+                    }
+                }
+                cout << "error\n";
+                continue;
+            } else if ((p3 == string::npos) && (target == "SONG")) {
+                cout << "error\n";
+                continue;
+            }
+
+        } else if (command == "PRINT") {
+            const string target = line.substr(p1 + 1);
+
+            PRINT(target);
+        } else if (command == "DELETE") {
+            const size_t p2 = line.find(' ', p1 + 1);
+            if (p2 == string::npos) {
+                cout << "입력 규격 안 맞음";
+                continue;
+            }
+            const string target = line.substr(p1 + 1, p2 - (p1 + 1));
+
+            const string targetArtist;
+            const string targetTitle;
+
+            const size_t p3 = command.find('|', p2 + 1);
+            if ((p3 == string::npos) && target == "ARTIST") {
+                targetArtist = line.substr(p2 + 1);
+                targetTitle = "";
+            } else if ((p3 == string::npos) && target == "TITLE") {
+                targetArtist = "";
+                targetTitle = line.substr(p2 + 1);
+            } else if ((p3 != string::npos) && ((target == "SONG") || (target == "LIST"))) {
+                targetArtist = line.substr(p2 + 1, p3 - (p2 + 1));
+                targetTitle = line.substr(p3 + 1);
+            } else if ((p3 == string::npos) && ((target == "SONG") || (target == "LIST"))) {
+                cout << "error\n";
+                continue;
+            }
+
+            DELETE(target, targetArtist, targetTitle);
+        }
+    }
+}
+// load add
+bool Manager::split(const string& command) {
     // 1) 구분자 찾기 (안전)
-    const std::size_t p1 = command.find('|');
+    const size_t p1 = command.find('|');
     if (p1 == string::npos) {
         std::cout << "입력 규격 안 맞음";
         return false;
     }
 
-    const std::size_t p2 = command.find('|', p1 + 1);
+    const size_t p2 = command.find('|', p1 + 1);
     if (p2 == string::npos) {
         std::cout << "입력 규격 안 맞음";
         return false;
@@ -40,7 +212,7 @@ bool Manager::run(const string& command) {
     }
 
     // 3) runTime 형식 검사: m:ss 또는 mm:ss
-    const std::size_t L = runTime.size();
+    const size_t L = runTime.size();
     auto isDigit = [](char c) { return c >= '0' && c <= '9'; };
 
     bool ok = false;
@@ -81,7 +253,7 @@ void Manager::LOAD() {
 
     string line;
     while (getline(this->fcmd, line)) {
-        if (run(line) == false) {
+        if (split(line) == false) {
             cout << "error\n";
             return;
         }
@@ -100,7 +272,7 @@ void Manager::ADD(string command) {
         }
     }
 
-    run(command);
+    split(command);
 }
 
 void Manager::QPOP() {
@@ -170,7 +342,7 @@ void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
         return;
     }
 }
-
+// pl insert
 void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
         ArtistBSTNode* artistTemp = this->ab.search();
@@ -182,7 +354,7 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
 
         for (int i = 0; i < artistTemp->getCount(); i++) {
             if (this->pl.insert_node(artistTemp->getArtist(), artistTemp->getTitle()[i],
-                                     artistTemp->getRunTime()) == false) {
+                                     artistTemp->getRunTime()[i]) == false) {
                 cout << "error\n";
                 return;
             }
@@ -198,14 +370,31 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
 
         for (int i = 0; i < titleTemp->getCount(); i++) {
             if (this->pl.insert_node(titleTemp->getArtist()[i], titleTemp->getTitle(),
-                                     titleTemp->getRunTime()) == false) {
+                                     titleTemp->getRunTime()[i]) == false) {
                 cout << "error\n";
                 return;
             }
         }
     }
-}
+    if (target == "SONG") {
+        ArtistBSTNode* artistTemp = this->ab.search();
 
+        if (artistTemp == false) {
+            cout << "error\n";
+            return;
+        }
+
+        for (int i = 0; i < artistTemp->getCount(); i++) {
+            if (artistTemp->getTitle()[i] == targetTitle) {
+                this->pl.insert_node(targetArtist, targetTitle, artistTemp->getRunTime()[i]);
+                return;
+            }
+        }
+        cout << "error\n";
+        return;
+    }
+}
+// print
 void Manager::PRINT(string target) {
     if (target == "ARTIST") {
         if (this->ab.print() == false) {
@@ -226,25 +415,80 @@ void Manager::PRINT(string target) {
         }
     }
 }
-
+// bst delete_node search
 void Manager::DELETE(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
+        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+
+        if (targetNode == nullptr) {
+            cout << "no target\n";
+            return;
+        }
+
+        for (int i = 0; i < targetNode->getCount(); i++) {
+            if (this->tb.delete_node(targetArtist, targetNode->getTitle()[i]) == false) {
+                cout << "error\n";
+                return;
+            }
+            if (this->pl.delete_node(targetArtist, targetNode->getTitle()[i]) == false) {
+                cout << "error\n";
+                return;
+            }
+        }
+
         if (this->ab.delete_node(targetArtist, targetTitle) == false) {
             cout << "error\n";
             return;
         }
+
+        return;
     }
     if (target == "TITLE") {
+        TitleBSTNode* targetNode = this->tb.search(targetTitle);
+
+        if (targetNode == nullptr) {
+            cout << "no target\n";
+            return;
+        }
+
+        for (int i = 0; i < targetNode->getCount(); i++) {
+            if (this->tb.delete_node(targetNode->getArtist()[i], targetTitle) == false) {
+                cout << "error\n";
+                return;
+            }
+            if (this->pl.delete_node(targetNode->getArtist()[i], targetTitle) == false) {
+                cout << "error\n";
+                return;
+            }
+        }
         if (this->tb.delete_node(targetArtist, targetTitle) == false) {
             cout << "error\n";
             return;
         }
+
+        return;
     }
     if (target == "LIST") {
         if (this->pl.delete_node(targetArtist, targetTitle) == false) {
             cout << "error\n";
+        }
+        return;
+    }
+    if (target == "SONG") {
+        if (this->ab.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
             return;
         }
+        if (this->tb.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
+            return;
+        }
+        if (this->pl.delete_node(targetArtist, targetTitle) == false) {
+            cout << "error\n";
+            return;
+        }
+
+        return;
     }
 }
 

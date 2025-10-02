@@ -14,6 +14,7 @@ class Manager {
     ArtistBST ab;
     TitleBST tb;
     PlayList pl;
+    std::ifstream commandFile;
     std::ifstream fcmd;
     std::ofstream flog;
 
@@ -23,14 +24,14 @@ class Manager {
     Manager();
     ~Manager();
 
-    bool run(const char* command);
-
+    void run();
+    bool split(const std::string& command);
     void LOAD();
-    void ADD();
+    void ADD(std::string command);
     void QPOP();
-    void SEARCH();
-    void MAKEPL();
-    void PRINT();
-    void DELETE();
+    void SEARCH(std::string target, std::string targetArtist, std::string targetTitle);
+    void MAKEPL(std::string target, std::string targetArtist, std::string targetTitle);
+    void PRINT(std::string target);
+    void DELETE(std::string target, std::string targetArtist, std::string targetTitle);
     void EXIT();
 };

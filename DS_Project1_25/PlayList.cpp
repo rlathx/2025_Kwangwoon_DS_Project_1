@@ -19,6 +19,10 @@ PlayList::PlayList() {
 PlayList::~PlayList() {
 }
 
+int PlayList::getCount() {
+    return this->count;
+}
+
 bool PlayList::insert_node(string artist, string title, string runTime) {
     if (full()) {
         cout << "full";
@@ -52,7 +56,7 @@ bool PlayList::insert_node(string artist, string title, string runTime) {
     return true;
 }
 
-bool PlayList::delete_node(sstring targetArtist, string targetTitle) {
+bool PlayList::delete_node(string targetArtist, string targetTitle) {
     if (this->head == nullptr) {
         cout << "지울 게 없음";
         return false;

@@ -15,6 +15,7 @@ class PlayList {
     PlayList();
     ~PlayList();
 
+    int getCount();
     void insert_node(std::string artist, std::string title, std::string runTime);
     void delete_node(std::string artist, std::string title);
     bool empty();
