@@ -34,14 +34,14 @@ bool ArtistBST::insert(const string artist, const string title, const string run
 
             if (artist < temp->getArtist()) {
                 temp = temp->getLeft();
-            } else if (artist > parentNode->getArtist()) {
+            } else if (artist > temp->getArtist()) {
                 temp = temp->getRight();
             }
         }
         if (artist < parentTemp->getArtist()) {
-            parentNode->setLeft(node);
+            parentTemp->setLeft(node);
         } else if (artist > parentTemp->getArtist()) {
-            parentNode->setRight(node);
+            parentTemp->setRight(node);
         }
 
         return true;
@@ -53,10 +53,12 @@ bool ArtistBST::insert(const string artist, const string title, const string run
             }
         }
         targetNode->set(artist, title, run_time);
+
+        return true;
     }
 }
 
-ArtistBSTNode*& ArtistBST::search(string targetArtist) {
+ArtistBSTNode* ArtistBST::search(string targetArtist) {
     ArtistBSTNode* curNode = this->root;
 
     while (curNode) {

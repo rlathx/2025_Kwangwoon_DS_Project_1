@@ -1,11 +1,10 @@
-// #include "Manager.h"
+#include "Manager.h"
 
-// using namespace std;
+using namespace std;
 
-// int main()
-// {
-// 	Manager manager;
-// 	manager.run("command.txt");
+int main() {
+    Manager manager;
+    manager.run();
 
-// 	return 0;
-// }
+    return 0;
+}

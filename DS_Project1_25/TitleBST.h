@@ -18,5 +18,5 @@ class TitleBST {
     TitleBSTNode* search(std::string targetTitle);
     void inOrder(TitleBSTNode* curNode);
     bool print();
-    void delete_node(std::string targetTitle);
+    bool delete_node(std::string targetArtist, std::string targetTitle);
 };

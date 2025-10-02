@@ -27,7 +27,7 @@ bool TitleBST::insert(const string artist, const string title, const string run_
                 return false;
             } else {
                 curNode->set(artist, title, run_time);
-                return;
+                return true;
             }
         }
 

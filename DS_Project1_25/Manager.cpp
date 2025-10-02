@@ -52,17 +52,17 @@ void Manager::run() {
             }
             const string target = line.substr(p1 + 1, p2 - (p1 + 1));
 
-            const string targetArtist;
-            const string targetTitle;
+            string targetArtist;
+            string targetTitle;
 
             const size_t p3 = command.find('|', p2 + 1);
-            if ((p3 == string::npos) && target == "ARTIST") {
+            if ((p3 == string::npos) && (target == "ARTIST")) {
                 targetArtist = line.substr(p2 + 1);
                 targetTitle = "";
-            } else if ((p3 == string::npos) && target == "TITLE") {
+            } else if ((p3 == string::npos) && (target == "TITLE")) {
                 targetArtist = "";
                 targetTitle = line.substr(p2 + 1);
-            } else if ((p3 == string::npos) && target == "SONG") {
+            } else if ((p3 == string::npos) && (target == "SONG")) {
                 targetArtist = line.substr(p2 + 1, p3 - (p2 + 1));
                 targetTitle = line.substr(p3 + 1);
             }
@@ -77,8 +77,8 @@ void Manager::run() {
             }
             const string target = line.substr(p1 + 1, p2 - (p1 + 1));
 
-            const string targetArtist;
-            const string targetTitle;
+            string targetArtist;
+            string targetTitle;
 
             const size_t p3 = command.find('|', p2 + 1);
             if ((p3 == string::npos) && target == "ARTIST") {
@@ -94,8 +94,10 @@ void Manager::run() {
                 }
 
                 for (int i = 0; i < artistNode->getCount(); i++) {
-                    if (this->pl.insert_node(targetArtist, artistNode->getTitle()[i],
-                                             artistNode->getRunTime()[i]) == false) {
+                    bool plInsertCheckFlag = this->pl.insert_node(
+                        targetArtist, artistNode->getTitle()[i], artistNode->getRunTime()[i]);
+
+                    if (plInsertCheckFlag == false) {
                         cout << "error\n";
                         continue;
                     }
@@ -113,8 +115,10 @@ void Manager::run() {
                 }
 
                 for (int i = 0; i < titleNode->getCount(); i++) {
-                    if (this->pl.insert_node(titleNode->getArtist()[i], targetTitle,
-                                             titleNode->getRunTime()[i]) == false) {
+                    bool plInsertCheckFlag = this->pl.insert_node(
+                        titleNode->getArtist()[i], targetTitle, titleNode->getRunTime()[i]);
+
+                    if (plInsertCheckFlag == false) {
                         cout << "error\n";
                         continue;
                     }
@@ -137,8 +141,9 @@ void Manager::run() {
 
                 for (int i = 0; i < targetNode->getCount(); i++) {
                     if (targetNode->getTitle()[i] == targetTitle) {
-                        if (this->pl.insert_node(targetArtist, targetTitle,
-                                                 targetNode->getRunTime()[i])) {
+                        bool plInsertCheckFlag = this->pl.insert_node(targetArtist, targetTitle,
+                                                                      targetNode->getRunTime()[i]);
+                        if (plInsertCheckFlag == false) {
                             cout << "error\n";
                             continue;
                         }
@@ -164,8 +169,8 @@ void Manager::run() {
             }
             const string target = line.substr(p1 + 1, p2 - (p1 + 1));
 
-            const string targetArtist;
-            const string targetTitle;
+            string targetArtist;
+            string targetTitle;
 
             const size_t p3 = command.find('|', p2 + 1);
             if ((p3 == string::npos) && target == "ARTIST") {
@@ -183,6 +188,9 @@ void Manager::run() {
             }
 
             DELETE(target, targetArtist, targetTitle);
+        } else {
+            cout << "command 규격 오류\n";
+            continue;
         }
     }
 }
@@ -302,37 +310,41 @@ void Manager::QPOP() {
 
 void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
-        if (this->ab.search() == nullptr) {
+        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+        if (targetNode == nullptr) {
             cout << "error\n";
             return;
         }
 
-        for (int i = 0; i < curNode->getCount(); i++) {
-            cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
-                 << curNode->getRunTime()[i] << '\n';
+        for (int i = 0; i < targetNode->getCount(); i++) {
+            cout << targetArtist << '/' << targetNode->getTitle()[i] << '/'
+                 << targetNode->getRunTime()[i] << '\n';
         }
     }
     if (target == "TITLE") {
-        if (this->tb.search() == nullptr) {
+        TitleBSTNode* targetNode = this->tb.search(targetTitle);
+
+        if (targetNode == nullptr) {
             cout << "error\n";
             return;
         }
 
-        for (int i = 0; i < curNode->getCount(); i++) {
-            cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
-                 << curNode->getRunTime()[i] << '\n';
+        for (int i = 0; i < targetNode->getCount(); i++) {
+            cout << targetNode->getArtist()[i] << '/' << targetTitle << '/'
+                 << targetNode->getRunTime()[i] << '\n';
         }
     }
-    if (target == "LIST") {
-        if (this->pl.search() == nullptr) {
+    if (target == "SONG") {
+        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+        if (targetNode == nullptr) {
             cout << "error\n";
             return;
         }
 
-        for (int i = 0; i < curNode->getCount(); i++) {
-            if (curNode->getTitle()[i] == targetTitle) {
-                cout << curNode->getArtist() << '/' << curNode->getTitle()[i] << '/'
-                     << curNode->getRunTime()[i] << '\n';
+        for (int i = 0; i < targetNode->getCount(); i++) {
+            if (targetNode->getTitle()[i] == targetTitle) {
+                cout << targetArtist << '/' << targetTitle << '/' << targetNode->getRunTime()[i]
+                     << '\n';
 
                 return;
             }
@@ -345,9 +357,9 @@ void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
 // pl insert
 void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
-        ArtistBSTNode* artistTemp = this->ab.search();
+        ArtistBSTNode* artistTemp = this->ab.search(targetArtist);
 
-        if (artistTemp == false) {
+        if (artistTemp == nullptr) {
             cout << "error\n";
             return;
         }
@@ -361,9 +373,9 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
         }
     }
     if (target == "TITLE") {
-        ArtistBSTNode* titleTemp = this->tb.search();
+        TitleBSTNode* titleTemp = this->tb.search(targetTitle);
 
-        if (titleTemp == false) {
+        if (titleTemp == nullptr) {
             cout << "error\n";
             return;
         }
@@ -377,9 +389,9 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
         }
     }
     if (target == "SONG") {
-        ArtistBSTNode* artistTemp = this->ab.search();
+        ArtistBSTNode* artistTemp = this->ab.search(targetArtist);
 
-        if (artistTemp == false) {
+        if (artistTemp == nullptr) {
             cout << "error\n";
             return;
         }
