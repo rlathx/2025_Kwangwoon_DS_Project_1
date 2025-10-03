@@ -6,6 +6,7 @@ using namespace std;
 MusicQueue::MusicQueue() {
     this->head = nullptr;
     this->rear = nullptr;
+    this->size = 0;
 }
 
 MusicQueue::~MusicQueue() {
@@ -31,6 +32,10 @@ bool MusicQueue::exist(string artist, string title) {
 bool MusicQueue::push(const std::string& artist, const std::string& title,
                       const std::string& runTime) {
     if (this->size >= 100) {
+        cout << "========ERROR========\n"
+             << "200\n"
+             << "====================\n"
+             << ": Queue Full\n\n";
         return false;
     }
 
@@ -51,16 +56,36 @@ bool MusicQueue::push(const std::string& artist, const std::string& title,
 }
 
 MusicQueueNode* MusicQueue::pop() {
-    if (empty()) {
-        return nullptr;
-    }
+    if (this->head == nullptr) return nullptr;
 
     MusicQueueNode* temp = this->head;
-    this->head = this->head->getNext();
-    this->head->setPrev(nullptr);
-    this->size--;
+    MusicQueueNode* next = temp->getNext();
 
+    // 새 head 설정
+    this->head = next;
+    if (next != nullptr) {
+        next->setPrev(nullptr);
+    } else {
+        // 큐가 비게 되었으므로 rear도 nullptr로
+        this->rear = nullptr;
+    }
+
+    // 반환 노드를 안전하게 분리
+    temp->setNext(nullptr);
+    temp->setPrev(nullptr);
+
+    this->size--;
     return temp;
+}
+
+void MusicQueue::print() {
+    MusicQueueNode* temp = this->head;
+    while (temp != nullptr) {
+        cout << temp->getArtist() << '/' << temp->getTitle() << '/' << temp->getRunTime() << "\n";
+
+        temp = temp->getNext();
+    }
+    return;
 }
 
 MusicQueueNode* MusicQueue::front() {

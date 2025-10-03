@@ -25,7 +25,7 @@ class Manager {
     ~Manager();
 
     void run();
-    bool split(const std::string& command);
+    std::string split(const std::string& command);
     void LOAD();
     void ADD(std::string command);
     void QPOP();

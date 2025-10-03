@@ -25,12 +25,19 @@ int PlayList::getCount() {
 
 bool PlayList::insert_node(string artist, string title, string runTime) {
     if (full()) {
-        cout << "full";
+        cout << "========ERROR========\n"
+             << "500\n"
+             << "====================\n"
+             << ": 넣고자 하는 곡의 수가 playlist 여유공간을 넘어선 경우\n";
         return false;
     }
 
     if (exist(artist, title)) {
-        cout << "중복";
+        cout << "========ERROR========\n"
+             << "500\n"
+             << "====================\n"
+             << ": 이미 존재하는 곡에 대한 명령어 사용\n\n";
+
         return false;
     }
 
@@ -58,12 +65,10 @@ bool PlayList::insert_node(string artist, string title, string runTime) {
 
 bool PlayList::delete_node(string targetArtist, string targetTitle) {
     if (this->head == nullptr) {
-        cout << "지울 게 없음";
         return false;
     }
 
     if (exist(targetArtist, targetTitle) == false) {
-        cout << "지울 게 없음";
         return false;
     }
 

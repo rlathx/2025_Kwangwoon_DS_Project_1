@@ -23,7 +23,6 @@ bool TitleBST::insert(const string artist, const string title, const string run_
 
         if (title == curNode->getTitle()) {
             if (curNode->search(artist) != -1) {
-                cout << "artist 중복";
                 return false;
             } else {
                 curNode->set(artist, title, run_time);
@@ -67,27 +66,43 @@ TitleBSTNode* TitleBST::search(string targetTitle) {
             return curNode;
         }
     }
-    cout << "해당 제목 없음";
     return nullptr;
 }
 
 void TitleBST::inOrder(TitleBSTNode* curNode) {
-    if (curNode) {
-        inOrder(curNode->getLeft());
-        for (int i = 0; i < curNode->getCount(); i++) {
-            cout << curNode->getArtist()[i] << '/' << curNode->getTitle() << '/'
-                 << curNode->getRunTime()[i] << '\n';
-        }
-        inOrder(curNode->getRight());
+    if (curNode == nullptr) return;
+
+    // Left
+    inOrder(curNode->getLeft());
+
+    // Current
+    const std::vector<std::string>& artists = curNode->getArtist();
+    const std::vector<std::string>& runtimes = curNode->getRunTime();
+
+    int count = curNode->getCount();
+    int asize = static_cast<int>(artists.size());
+    int rsize = static_cast<int>(runtimes.size());
+
+    // 방어: count가 벡터 크기보다 크면 잘라냄
+    if (count > asize) count = asize;
+    if (count > rsize) count = rsize;
+
+    for (int i = 0; i < count; ++i) {
+        cout << artists[i] << '/' << curNode->getTitle() << '/' << runtimes[i] << '\n';
     }
-    return;
+
+    // Right
+    inOrder(curNode->getRight());
 }
 
 bool TitleBST::print() {
     if (this->root == nullptr) {
         return false;
     }
+
+    cout << "========Print========\n" << "TitleBST\n";
     inOrder(this->root);
+    cout << "====================\n" << ": TitleBST 전체 출력\n\n";
     return true;
 }
 
@@ -95,7 +110,6 @@ bool TitleBST::delete_node(string targetTitle, string targetArtist) {
     TitleBSTNode* targetNode = search(targetTitle);
 
     if (targetNode == nullptr) {
-        cout << "no target\n";
         return false;
     }
 
@@ -108,7 +122,6 @@ bool TitleBST::delete_node(string targetTitle, string targetArtist) {
                 return true;
             }
         }
-        cout << "no target\n";
         return false;
     }
 
