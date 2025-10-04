@@ -4,6 +4,7 @@
 // #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -106,7 +107,7 @@ void Manager::run() {
             const size_t p3 = command.find('|', p2 + 1);
             if ((p3 == string::npos) && target == "ARTIST") {
                 targetArtist = line.substr(p2 + 1);
-                ArtistBSTNode* artistNode = this->ab.search(targetArtist);
+                ArtistBSTNode*& artistNode = this->ab.search(targetArtist);
                 if (artistNode == nullptr) {
                     cout << "========ERROR========\n"
                          << "500\n"
@@ -133,7 +134,7 @@ void Manager::run() {
                 }
             } else if ((p3 == string::npos) && target == "TITLE") {
                 targetTitle = line.substr(p2 + 1);
-                TitleBSTNode* titleNode = this->tb.search(targetTitle);
+                TitleBSTNode*& titleNode = this->tb.search(targetTitle);
                 if (titleNode == nullptr) {
                     cout << "========ERROR========\n"
                          << "500\n"
@@ -170,7 +171,7 @@ void Manager::run() {
                     continue;
                 }
 
-                ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+                ArtistBSTNode*& targetNode = this->ab.search(targetArtist);
 
                 if (targetNode == nullptr) {
                     cout << "========ERROR========\n"
@@ -459,7 +460,7 @@ void Manager::QPOP() {
 
 void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
-        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+        ArtistBSTNode*& targetNode = this->ab.search(targetArtist);
         if (targetNode == nullptr) {
             cout << "========ERROR========\n"
                  << "400\n"
@@ -477,7 +478,7 @@ void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
              << ": 해당 Artist 명으로 노래 검색\n\n";
     }
     if (target == "TITLE") {
-        TitleBSTNode* targetNode = this->tb.search(targetTitle);
+        TitleBSTNode*& targetNode = this->tb.search(targetTitle);
 
         if (targetNode == nullptr) {
             cout << "========ERROR========\n"
@@ -496,7 +497,7 @@ void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
              << ": 노래 제목을 기준으로 검색\n\n";
     }
     if (target == "SONG") {
-        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
+        ArtistBSTNode*& targetNode = this->ab.search(targetArtist);
         if (targetNode == nullptr) {
             cout << "========ERROR========\n"
                  << "400\n"
@@ -527,7 +528,7 @@ void Manager::SEARCH(string target, string targetArtist, string targetTitle) {
 // pl insert
 void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
-        ArtistBSTNode* artistTemp = this->ab.search(targetArtist);
+        ArtistBSTNode*& artistTemp = this->ab.search(targetArtist);
 
         if (artistTemp == nullptr) {
             cout << "========ERROR========\n"
@@ -536,17 +537,35 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
                  << ": ArtistBST에 해당 곡 없음\n\n";
             return;
         }
+        if (artistTemp->getCount() > (10 - this->pl.getCount())) {
+            cout << "========ERROR========\n"
+                 << "500\n"
+                 << "====================\n"
+                 << ": 넣고자 하는 곡의 수가 playlist 여유공간을 넘어선 경우\n\n";
+            return;
+        }
+
+        vector<string> titles = artistTemp->getTitle();
+        vector<string> runTimes = artistTemp->getRunTime();
+
+        for (int i = 0; i < this->pl.getCount(); i++) {
+            for (int j = 0; j < artistTemp->getCount(); j++) {
+                if (this->pl.exist(targetArtist, titles[j]) == true) {
+                    cout << "========ERROR========\n"
+                         << "500\n"
+                         << "====================\n"
+                         << ": Play List에 중복 곡 있음\n\n";
+                    return;
+                }
+            }
+        }
 
         for (int i = 0; i < artistTemp->getCount(); i++) {
-            if (this->pl.insert_node(artistTemp->getArtist(), artistTemp->getTitle()[i],
-                                     artistTemp->getRunTime()[i]) == false) {
-                cout << "========ERROR========\n"
-                     << "500\n"
-                     << "====================\n"
-                     << ": ArtistBST에 해당 곡 없음\n\n";
+            if (this->pl.insert_node(targetArtist, titles[i], runTimes[i]) == false) {
                 return;
             }
         }
+
         cout << "========MAKEPL========\n";
         this->pl.print();
         cout << "====================\n" << ": Artist 기준으로 노래 추가\n\n";
@@ -554,7 +573,7 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
         return;
     }
     if (target == "TITLE") {
-        TitleBSTNode* titleTemp = this->tb.search(targetTitle);
+        TitleBSTNode*& titleTemp = this->tb.search(targetTitle);
 
         if (titleTemp == nullptr) {
             cout << "========ERROR========\n"
@@ -564,22 +583,41 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
             return;
         }
 
+        if (titleTemp->getCount() > (10 - this->pl.getCount())) {
+            cout << "========ERROR========\n"
+                 << "500\n"
+                 << "====================\n"
+                 << ": 넣고자 하는 곡의 수가 playlist 여유공간을 넘어선 경우\n\n";
+            return;
+        }
+
+        vector<string> artists = titleTemp->getArtist();
+        vector<string> runTimes = titleTemp->getRunTime();
+
+        for (int i = 0; i < this->pl.getCount(); i++) {
+            for (int j = 0; j < titleTemp->getCount(); j++) {
+                if (this->pl.exist(artists[j], targetTitle) == true) {
+                    cout << "========ERROR========\n"
+                         << "500\n"
+                         << "====================\n"
+                         << ": Play List에 중복 곡 있음\n\n";
+                    return;
+                }
+            }
+        }
+
         for (int i = 0; i < titleTemp->getCount(); i++) {
-            if (this->pl.insert_node(titleTemp->getArtist()[i], titleTemp->getTitle(),
-                                     titleTemp->getRunTime()[i]) == false) {
-                cout << "========ERROR========\n"
-                     << "500\n"
-                     << "====================\n"
-                     << ": TitleBST에 해당 곡 없음\n\n";
+            if (this->pl.insert_node(artists[i], targetTitle, runTimes[i]) == false) {
                 return;
             }
         }
+
         cout << "========MAKEPL========\n";
         this->pl.print();
         cout << "====================\n" << ": Title 기준으로 노래 추가\n\n";
     }
     if (target == "SONG") {
-        ArtistBSTNode* artistTemp = this->ab.search(targetArtist);
+        ArtistBSTNode*& artistTemp = this->ab.search(targetArtist);
 
         if (artistTemp == nullptr) {
             cout << "========ERROR========\n"
@@ -591,7 +629,10 @@ void Manager::MAKEPL(string target, string targetArtist, string targetTitle) {
 
         for (int i = 0; i < artistTemp->getCount(); i++) {
             if (artistTemp->getTitle()[i] == targetTitle) {
-                this->pl.insert_node(targetArtist, targetTitle, artistTemp->getRunTime()[i]);
+                if (this->pl.insert_node(targetArtist, targetTitle, artistTemp->getRunTime()[i]) ==
+                    false) {
+                    return;
+                }
                 cout << "========MAKEPL========\n";
                 this->pl.print();
                 cout << "====================\n" << ": 특정 음원 하나 기준으로 노래 추가\n\n";
@@ -643,124 +684,75 @@ void Manager::PRINT(string target) {
         return;
     }
 }
-// bst delete_node search
+
 void Manager::DELETE(string target, string targetArtist, string targetTitle) {
     if (target == "ARTIST") {
-        ArtistBSTNode* targetNode = this->ab.search(targetArtist);
-
-        if (targetNode == nullptr) {
-            cout << "no target\n";
-            return;
-        }
-
-        for (int i = 0; i < targetNode->getCount(); i++) {
-            if (this->tb.delete_node(targetArtist, targetNode->getTitle()[i]) == false) {
-                cout << "error\n";
-                return;
-            }
-            if (this->pl.delete_node(targetArtist, targetNode->getTitle()[i]) == false) {
-                cout << "error\n";
-                return;
-            }
-        }
-
-        if (this->ab.delete_node(targetArtist, targetTitle) == false) {
-            cout << "error\n";
-            return;
-        }
-
-        cout << "========DELETE========\n"
-             << "Success\n"
-             << "====================\n"
-             << ": 해당 가수 음원 전부 삭제(BST, List 전부)\n\n";
-
-        return;
-    }
-    if (target == "TITLE") {
-        TitleBSTNode* targetNode = this->tb.search(targetTitle);
-
-        if (targetNode == nullptr) {
+        // --- Precheck ---
+        ArtistBSTNode*& artistNode = this->ab.search(targetArtist);
+        if (artistNode == nullptr) {
             cout << "========ERROR========\n"
                  << "700\n"
                  << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+                 << ": 존재 하지 않는 데이터에 대한 명령어 1\n\n";
 
             return;
         }
+        const vector<string>& titles = artistNode->getTitle();
+        const int n = artistNode->getCount();
 
-        for (int i = 0; i < targetNode->getCount(); i++) {
-            if (this->tb.delete_node(targetNode->getArtist()[i], targetTitle) == false) {
+        // TitleBST에 (artist, title) 쌍이 모두 존재하는지 확인
+        for (int i = 0; i < n; i++) {
+            TitleBSTNode*& tnode = this->tb.search(titles[i]);
+            if (tnode == nullptr) {
                 cout << "========ERROR========\n"
                      << "700\n"
                      << "====================\n"
-                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+                     << ": 존재 하지 않는 데이터에 대한 명령어 2\n\n";
 
                 return;
             }
-            if (this->pl.delete_node(targetNode->getArtist()[i], targetTitle) == false) {
+            const vector<string>& artists = tnode->getArtist();
+            bool foundPair = false;
+            for (int j = 0; j < tnode->getCount(); ++j) {
+                if (artists[j] == targetArtist) {
+                    foundPair = true;
+                    break;
+                }
+            }
+            if (!foundPair) {
                 cout << "========ERROR========\n"
                      << "700\n"
                      << "====================\n"
-                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+                     << ": 존재 하지 않는 데이터에 대한 명령어 3\n\n";
 
                 return;
             }
         }
-        if (this->tb.delete_node(targetArtist, targetTitle) == false) {
-            cout << "========ERROR========\n"
-                 << "700\n"
-                 << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
 
-            return;
+        // --- Apply (모두 확인됐으니 실제 삭제) ---
+        for (int i = 0; i < n; i++) {
+            // TitleBST에서 (artist,title) 삭제 실패 시 전체 롤백을 위해 그냥 에러 처리
+            if (!this->tb.delete_node(targetArtist, titles[i])) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어 4\n\n";
+
+                return;
+            }
         }
-
-        cout << "========DELETE========\n"
-             << "Success\n"
-             << "====================\n"
-             << ": 같은 노래 제목 전부 삭제(BST, List 전부)\n\n";
-
-        return;
-    }
-    if (target == "LIST") {
-        if (this->pl.delete_node(targetArtist, targetTitle) == false) {
-            cout << "========ERROR========\n"
-                 << "700\n"
-                 << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
-
-            return;
+        // PlayList는 있으면만 삭제 (없어도 성공에 영향 없음)
+        for (int i = 0; i < n; ++i) {
+            if (this->pl.exist(targetArtist, titles[i])) {
+                (void)this->pl.delete_node(targetArtist, titles[i]);  // 실패해도 무시
+            }
         }
-
-        cout << "========DELETE========\n"
-             << "Success\n"
-             << "====================\n"
-             << ": playList에서만 해당 곡 삭제\n\n";
-
-        return;
-    }
-    if (target == "SONG") {
-        if (this->ab.delete_node(targetArtist, targetTitle) == false) {
+        // ArtistBST에서 artist 노드 제거
+        if (!this->ab.delete_node(targetArtist, "")) {
             cout << "========ERROR========\n"
                  << "700\n"
                  << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
-
-            return;
-        }
-        if (this->tb.delete_node(targetArtist, targetTitle) == false) {
-            cout << "========ERROR========\n"
-                 << "700\n"
-                 << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
-
-            return;
-        }
-        if (this->pl.delete_node(targetArtist, targetTitle) == false) {
-            cout << "========ERROR========\n"
-                 << "700\n"
-                 << "====================\n"
-                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+                 << ": 존재 하지 않는 데이터에 대한 명령어 5\n\n";
 
             return;
         }
@@ -769,19 +761,183 @@ void Manager::DELETE(string target, string targetArtist, string targetTitle) {
              << "Success\n"
              << "====================\n"
              << ": 해당 곡에 대한 데이터 전부 삭제\n\n";
-
         return;
+    }
+
+    // =========================
+    // DELETE TITLE
+    // =========================
+    if (target == "TITLE") {
+        // --- Precheck ---
+        TitleBSTNode*& titleNode = this->tb.search(targetTitle);
+        if (titleNode == nullptr) {
+            cout << "========ERROR========\n"
+                 << "700\n"
+                 << "====================\n"
+                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+            return;
+        }
+        const vector<string>& artists = titleNode->getArtist();
+        const int n = titleNode->getCount();
+
+        // ArtistBST에 (artist, title) 쌍이 모두 존재하는지 확인
+        for (int i = 0; i < n; ++i) {
+            ArtistBSTNode*& anode = this->ab.search(artists[i]);
+            if (anode == nullptr) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+            const vector<string>& titles = anode->getTitle();
+            bool foundPair = false;
+            for (int j = 0; j < anode->getCount(); ++j) {
+                if (titles[j] == targetTitle) {
+                    foundPair = true;
+                    break;
+                }
+            }
+            if (!foundPair) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+        }
+
+        // --- Apply ---
+        for (int i = 0; i < n; ++i) {
+            if (!this->ab.delete_node(artists[i], targetTitle)) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (this->pl.exist(artists[i], targetTitle)) {
+                (void)this->pl.delete_node(artists[i], targetTitle);  // 실패 무시
+            }
+        }
+        if (!this->tb.delete_node("", targetTitle)) {
+            cout << "========ERROR========\n"
+                 << "700\n"
+                 << "====================\n"
+                 << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+            return;
+
+            cout << "========DELETE========\n"
+                 << "Success\n"
+                 << "====================\n"
+                 << ": 해당 곡에 대한 데이터 전부 삭제\n\n";
+            return;
+        }
+
+        // =========================
+        // DELETE LIST (playlist only)
+        // =========================
+        if (target == "LIST") {
+            // --- Precheck ---
+            if (!this->pl.exist(targetArtist, targetTitle)) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+            // --- Apply ---
+            if (!this->pl.delete_node(targetArtist, targetTitle)) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+
+            cout << "========DELETE========\n"
+                 << "Success\n"
+                 << "====================\n"
+                 << ": 해당 곡에 대한 데이터 전부 삭제\n\n";
+            return;
+        }
+
+        // =========================
+        // DELETE SONG (single pair across all)
+        // =========================
+        if (target == "SONG") {
+            // --- Precheck ---
+            ArtistBSTNode*& anode = this->ab.search(targetArtist);
+            if (anode == nullptr) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+            TitleBSTNode*& tnode = this->tb.search(targetTitle);
+            if (tnode == nullptr) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+            bool titleFlag = false, artistFlag = false;
+            const vector<string>& titles = anode->getTitle();
+            const vector<string>& artists = tnode->getArtist();
+            for (int i = 0; i < anode->getCount(); ++i)
+                if (titles[i] == targetTitle) {
+                    titleFlag = true;
+                    break;
+                }
+            for (int i = 0; i < tnode->getCount(); ++i)
+                if (artists[i] == targetArtist) {
+                    artistFlag = true;
+                    break;
+                }
+            if (!titleFlag || !artistFlag) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+
+            // --- Apply ---
+            if (!this->ab.delete_node(targetArtist, targetTitle) ||
+                !this->tb.delete_node(targetArtist, targetTitle)) {
+                cout << "========ERROR========\n"
+                     << "700\n"
+                     << "====================\n"
+                     << ": 존재 하지 않는 데이터에 대한 명령어\n\n";
+
+                return;
+            }
+            if (this->pl.exist(targetArtist, targetTitle)) {
+                (void)this->pl.delete_node(targetArtist, targetTitle);  // 실패 무시
+            }
+
+            cout << "========DELETE========\n"
+                 << "Success\n"
+                 << "====================\n"
+                 << ": 해당 곡에 대한 데이터 전부 삭제\n\n";
+            return;
+        }
     }
 }
 
 void Manager::EXIT() {
 }
-
-// +a
-
-// Enter data into each variable based on '/'
-// '' : char
-// "" : const char*, string (end letter == null)
-
-// If any of the following fields are missing: singer name, song title, or playing time, nullptr is
-// returned.

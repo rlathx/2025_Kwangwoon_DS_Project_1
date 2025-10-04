@@ -57,19 +57,24 @@ bool ArtistBST::insert(const string artist, const string title, const string run
     }
 }
 
-ArtistBSTNode* ArtistBST::search(string targetArtist) {
-    ArtistBSTNode* curNode = this->root;
+ArtistBSTNode*& ArtistBST::search(string targetArtist) {
+    ArtistBSTNode** link = &this->root;  // "현재 링크(포인터) 자체"의 주소
+    ArtistBSTNode* cur = this->root;     // 탐색용
 
-    while (curNode) {
-        if (targetArtist < curNode->getArtist()) {
-            curNode = curNode->getLeft();
-        } else if (targetArtist > curNode->getArtist()) {
-            curNode = curNode->getRight();
-        } else if (targetArtist == curNode->getArtist()) {
-            return curNode;
+    while (cur) {
+        if (targetArtist < cur->getArtist()) {
+            link = &cur->leftLink();  // 왼쪽 링크 자체의 주소
+            cur = cur->getLeft();
+        } else if (targetArtist > cur->getArtist()) {
+            link = &cur->rightLink();  // 오른쪽 링크 자체의 주소
+            cur = cur->getRight();
+        } else {
+            return *link;  // 트리 내부에 저장된 포인터에 대한 참조 반환
         }
     }
-    return nullptr;
+
+    static ArtistBSTNode* nullNode = nullptr;  // 참조 반환용 안전한 널 저장소
+    return nullNode;
 }
 
 void ArtistBST::inOrder(ArtistBSTNode* curNode) {
@@ -120,6 +125,7 @@ bool ArtistBST::delete_node(string targetArtist, string targetTitle) {
         for (int i = 0; i < targetNode->getCount(); i++) {
             if (targetNode->getTitle()[i] == targetTitle) {
                 targetNode->getTitle().erase(targetNode->getTitle().begin() + i);
+                targetNode->getRunTime().erase(targetNode->getRunTime().begin() + i);
                 targetNode->setCount();  // 카운트 감소 함수가 맞는지 확인 필요
                 return true;
             }

@@ -86,4 +86,11 @@ class ArtistBSTNode {
 
         return totalSeconds;
     }
+
+    ArtistBSTNode*& leftLink() {
+        return left;
+    }
+    ArtistBSTNode*& rightLink() {
+        return right;
+    }
 };

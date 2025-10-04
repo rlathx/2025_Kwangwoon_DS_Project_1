@@ -17,13 +17,37 @@ int main() {
     manager.SEARCH("SONG", "N.Flying", "blue moon");
     manager.MAKEPL("ARTIST", "N.Flying", "");
     manager.MAKEPL("TITLE", "", "blue moon");
-    // 여러개 추가 시 하나라도 겹치면 out
-    // 겹치는 게 하나라도 있는 지 확인 하고 this->pl.insert_node()
+    manager.MAKEPL("TITLE", "", "my love");
     manager.MAKEPL("SONG", "Maroon 5", "sugar");
     manager.MAKEPL("ARTIST", "PSY", "");
     manager.PRINT("ARTIST");
     manager.PRINT("TITLE");
     manager.PRINT("LIST");
+
+    manager.DELETE("ARTIST", "PSY", "");
+    cout << "1\n";
+    // manager.DELETE("ARTIST", "PSY", "");
+    // cout << "2\n";
+    // manager.DELETE("TITLE", "", "blue moon");
+    // cout << "3\n";
+    // manager.DELETE("TITLE", "", "blue moon");
+    // cout << "4\n";
+    // manager.DELETE("LIST", "N.Flying", "songbird");
+    // cout << "5 ok\n";
+    // manager.DELETE("LIST", "N.Flying", "songbird");
+    // cout << "6 ok\n";
+    // manager.DELETE("SONG", "N.Flying", "rooftop");
+    // cout << "7\n";
+    // manager.DELETE("SONG", "N.Flying", "rooftop");
+    // cout << "8\n";
+
+    // manager.PRINT("ARTIST");
+
+    // manager.DELETE("SONG", "N.Flying", "songbird");
+
+    // manager.PRINT("ARTIST");
+    // manager.PRINT("TITLE");
+    // manager.PRINT("LIST");
 
     return 0;
 }

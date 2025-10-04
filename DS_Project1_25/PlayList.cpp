@@ -32,15 +32,6 @@ bool PlayList::insert_node(string artist, string title, string runTime) {
         return false;
     }
 
-    if (exist(artist, title)) {
-        cout << "========ERROR========\n"
-             << "500\n"
-             << "====================\n"
-             << ": 이미 존재하는 곡에 대한 명령어 사용\n\n";
-
-        return false;
-    }
-
     PlayListNode* node = new PlayListNode;
     node->set(artist, title, runTime);
 
@@ -131,7 +122,7 @@ bool PlayList::exist(string artist, string title) {
 
     for (int i = 0; i < this->count; i++) {
         if ((temp->getArtist() == artist) && (temp->getTitle() == title)) {
-            break;
+            return true;
         }
         temp = temp->getNext();
     }

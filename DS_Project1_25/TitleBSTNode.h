@@ -85,4 +85,11 @@ class TitleBSTNode {
 
         return totalSeconds;
     }
+
+    TitleBSTNode*& leftLink() {
+        return left;
+    }
+    TitleBSTNode*& rightLink() {
+        return right;
+    }
 };
